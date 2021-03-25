@@ -1904,8 +1904,10 @@ __webpack_require__.r(__webpack_exports__);
           date_two: moment__WEBPACK_IMPORTED_MODULE_1__(this.date_two).format(format_str)
         }
       }).then(function (response) {
-        console.log(response);
-      })["catch"](function (err) {});
+        alert("The number of days between the two dates is: " + response.data.result);
+      })["catch"](function (err) {
+        alert("An error has taken place. Please recheck your connection or try again later.");
+      });
     }
   }
 });

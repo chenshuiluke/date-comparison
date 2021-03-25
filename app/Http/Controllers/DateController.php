@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\DateRequest;
+use App\Models\Result;
 
 const MONTH_INDEX=0;
 const DAY_INDEX=1;
@@ -30,14 +31,22 @@ class DateController extends Controller
         
         $date_one_parts = explode('/', $date_one);
         $date_two_parts = explode('/', $date_two);
+
+        $year1 = $date_one_parts[YEAR_INDEX];
+        $year2 = $date_two_parts[YEAR_INDEX];
         // dd($date_one_parts);
         $days_from_first_date = $this->getNumberOfDays($date_one_parts);
         $days_from_second_date = $this->getNumberOfDays($date_two_parts);
-        
-        
         $diff = abs($days_from_first_date - $days_from_second_date);
 
-        dd($diff);
+        $result = new Result();
+        $result->fill([
+            'date_one' => $date_one,
+            'date_two' => $date_two,
+            'difference' => $diff
+        ]);
+        $result->save();
+        return response()->json(['result' => $diff]);
     }
 
     private function getNumberOfDays($date_parts) 
@@ -45,11 +54,11 @@ class DateController extends Controller
         $year = $date_parts[YEAR_INDEX];
         $month = $date_parts[MONTH_INDEX];
         $days = $date_parts[DAY_INDEX];
-        $days_from_years = $this->getNumberOfDaysFromYears($year);
+        
+        $days_from_years = $this->getNumberOfDaysFromYears($year, $month);
         $days_from_leap_years = $this->getNumberOfDaysFromLeapYears($year, $month);
 
         $days_from_month = $this->getNumberOfDaysFromMonth($month, $year);
-        // dd($days_from_years, $days_from_leap_years, $days_from_month, $days);
         return $days_from_years + $days_from_leap_years + $days_from_month + $days;
     }
 
@@ -91,17 +100,20 @@ class DateController extends Controller
         return $diff;
     }
 
-    private function getNumberOfDaysFromYears($year) 
+    private function getNumberOfDaysFromYears($year, $month) 
     {
-        return $year * 365;
+        $years = 0;
+        for($count = 0; $count <= $year; $count++) {
+            if(!$this->isLeapYear($count)) {
+                $years++;
+            }
+        }
+        //dd($years, $year);
+        return $years * 365;
     }
 
     private function getNumberOfDaysFromLeapYears($year, $month)
     {
-        if($month < 2) {
-            dd("here");
-            $year--;
-        }
         $leap_years = 0;
         for($count = 0; $count <= $year; $count++) {
             if($this->isLeapYear($count)) {

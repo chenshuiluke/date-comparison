@@ -56,10 +56,10 @@
                     }
                 })
                 .then((response) => {
-                    console.log(response);
+                    alert("The number of days between the two dates is: " + response.data.result);
                 })
                 .catch((err) => {
-
+                    alert("An error has taken place. Please recheck your connection or try again later.")
                 });
             }
         }
